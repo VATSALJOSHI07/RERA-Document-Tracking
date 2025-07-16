@@ -10,7 +10,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+const cors = require('cors');
+
+const allowedOrigins = [
+  'https://vatsaljoshi07.github.io'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+  
 app.use(express.json());
 
 // MongoDB Connection
@@ -527,3 +545,5 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+//mongodb+srv://vatsaljoshi257:<db_password>@cluster0.vlsb0p1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
