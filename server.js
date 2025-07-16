@@ -169,6 +169,31 @@ const Client = mongoose.model('Client', clientSchema);
 const Document = mongoose.model('Document', documentSchema);
 const Payment = mongoose.model('Payment', paymentSchema);
 
+// Task model
+const taskSchema = new mongoose.Schema({
+    clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    title: String,
+    service: String,
+    allocatedMembers: String,
+    assignedMembers: String,
+    priority: String,
+    dueDate: String,
+    team: String,
+    clientSource: String,
+    status: String,
+    governmentFees: String,
+    sroFees: String,
+    billAmount: String,
+    gst: String,
+    branch: String,
+    remark: String,
+    note: String,
+    description: String,
+    dateCreated: { type: Date, default: Date.now }
+});
+const Task = mongoose.model('Task', taskSchema);
+
 // Default documents list
 const defaultDocuments = [
     'PAN Card of the Firm/Company',
@@ -367,6 +392,9 @@ app.get('/api/payments/:clientId', authMiddleware, async (req, res) => {
 app.post('/api/payments', authMiddleware, async (req, res) => {
     try {
         const paymentData = req.body;
+        if (!paymentData.clientId) {
+            return res.status(400).json({ error: 'clientId is required' });
+        }
         paymentData.userId = req.user._id; // Ensure userId is set from the logged-in user
         const payment = new Payment(paymentData);
         await payment.save();
@@ -418,6 +446,42 @@ app.delete('/api/payments/:id', authMiddleware, async (req, res) => {
     }
 });
 
+// Add this route to return all payments for the current user
+app.get('/api/payments', authMiddleware, async (req, res) => {
+    try {
+        const payments = await Payment.find({ userId: req.user._id });
+        res.json(payments);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Task Routes
+app.post('/api/tasks', authMiddleware, async (req, res) => {
+    try {
+        const taskData = req.body;
+        // Ensure clientId is present and valid
+        if (!taskData.clientId) {
+            return res.status(400).json({ error: 'clientId is required' });
+        }
+        // Set userId from the logged-in user
+        taskData.userId = req.user._id;
+        const task = new Task(taskData);
+        await task.save();
+        res.json(task);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+app.get('/api/tasks/:clientId', authMiddleware, async (req, res) => {
+    try {
+        const tasks = await Task.find({ clientId: req.params.clientId });
+        res.json(tasks);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Search Routes
 app.get('/api/search/clients', authMiddleware, async (req, res) => {
     try {
@@ -432,6 +496,17 @@ app.get('/api/search/clients', authMiddleware, async (req, res) => {
         res.json(clients);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Add this route after your other API routes:
+app.get('/api/user', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('name email');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json({ name: user.name, email: user.email });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
