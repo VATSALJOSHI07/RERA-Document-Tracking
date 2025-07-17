@@ -791,7 +791,7 @@
                 position: fixed;
                 left: -250px;
                 top: 0;
-                width: 220px;
+                width: 270px;
                 height: 100vh;
                 z-index: 2000;
                 transition: left 0.3s;
@@ -873,7 +873,7 @@
         }
         @media (max-width: 600px) {
             .sidebar {
-                width: 170px;
+                width: 220px;
             }
             .sidebar .logo {
                 font-size: 1.1em;
@@ -899,7 +899,7 @@
         }
         @media (max-width: 400px) {
             .sidebar {
-                width: 120px;
+                width: 160px;
             }
             .sidebar .logo {
                 font-size: 0.9em;
@@ -945,6 +945,11 @@
         #mainApp[style*="display: none"] .client-details-panel {
             display: none !important;
         }
+        .sidebar-nav a {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -973,7 +978,7 @@
             <p style="margin-top:10px; display:none;" id="backToLogin"><a href="#" onclick="showLogin()">Back to Login</a></p>
         </div>
     </div>
-    <div id="mainApp">
+    <div id="mainApp" style="display:none;">
     <div class="app-container">
         <nav class="sidebar">
             <div>
@@ -993,7 +998,7 @@
                     <div class="user-name" id="sidebarUserName">User Name</div>
                     <div class="user-email" id="sidebarUserEmail">user@example.com</div>
                 </div> -->
-                <button class="logout-btn" onclick="logout()">Logout</button>
+                <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
             </div>
         </nav>
         <main class="main-content">
