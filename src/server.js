@@ -12,9 +12,10 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 
+// Define allowedOrigins for CORS
 const allowedOrigins = [
   'https://vatsaljoshi07.github.io', // your GitHub Pages domain
-  'https://your-render-frontend-url.onrender.com', // if you have a Render frontend
+  'https://your-render-frontend-url.onrender.com', // your Render frontend domain if any
   undefined // allow Postman, curl, etc.
 ];
 
