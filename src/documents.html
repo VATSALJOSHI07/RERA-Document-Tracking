@@ -2321,7 +2321,7 @@
             e.preventDefault();
             const userId = document.getElementById('authUserId').value.trim();
             const password = document.getElementById('authPassword').value;
-            fetch('https://Reradoc.onrender.com/api/register', {
+            fetch('/api/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId, password })
