@@ -6,7 +6,6 @@
     const jwt = require('jsonwebtoken');
     require('dotenv').config();
     const path = require('path');
-    const ExcelJS = require('exceljs');
     const PDFDocument = require('pdfkit');
 
     const app = express();
