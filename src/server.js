@@ -7,6 +7,7 @@
     require('dotenv').config();
     const path = require('path');
     const ExcelJS = require('exceljs');
+    const PDFDocument = require('pdfkit');
 
     const app = express();
     const PORT = process.env.PORT || 5000;
@@ -566,45 +567,61 @@
         res.json({ userId: req.user.userId, _id: req.user._id });
     });
 
-    // Endpoint to export pending documents for all clients in Excel format
+    // Endpoint to export pending documents for all clients in PDF format
     app.get('/api/export/pending-documents', authMiddleware, async (req, res) => {
         try {
-            // Get all clients for the user
             const clients = await Client.find({ userId: req.user._id });
-            // Get all documents for these clients
             const clientIds = clients.map(c => c._id);
             const documentsList = await Document.find({ clientId: { $in: clientIds } });
 
-            // Prepare Excel workbook
-            const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Pending Documents');
-            worksheet.columns = [
-                { header: 'Client Name', key: 'clientName', width: 30 },
-                { header: 'Location', key: 'location', width: 20 },
-                { header: 'Pending Document', key: 'document', width: 40 },
-            ];
-
-            // For each client, list all documents with status 'not-received'
+            // Prepare PDF
+            const doc = new PDFDocument();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="pending_documents.pdf"');
+            doc.pipe(res);
+            doc.fontSize(18).text('Pending Documents', { align: 'center' });
+            doc.moveDown();
             for (const client of clients) {
                 const docEntry = documentsList.find(d => d.clientId.toString() === client._id.toString());
                 if (docEntry && docEntry.documents) {
-                    for (const [docName, status] of docEntry.documents.entries()) {
-                        if (status === 'not-received') {
-                            worksheet.addRow({
-                                clientName: client.name,
-                                location: client.location || '',
-                                document: docName
-                            });
-                        }
+                    const pendingDocs = Array.from(docEntry.documents.entries()).filter(([_, status]) => status === 'not-received');
+                    if (pendingDocs.length > 0) {
+                        doc.fontSize(14).text(client.name, { underline: true });
+                        pendingDocs.forEach(([docName]) => {
+                            doc.fontSize(12).text(docName, { indent: 20 });
+                        });
+                        doc.moveDown();
                     }
                 }
             }
-
-            // Set response headers
-            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader('Content-Disposition', 'attachment; filename="pending_documents.xlsx"');
-            await workbook.xlsx.write(res);
-            res.end();
+            doc.end();
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+    // Endpoint to export pending documents for a single client in PDF format
+    app.get('/api/export/pending-documents/:clientId', authMiddleware, async (req, res) => {
+        try {
+            const client = await Client.findOne({ _id: req.params.clientId, userId: req.user._id });
+            if (!client) return res.status(404).json({ error: 'Client not found' });
+            const docEntry = await Document.findOne({ clientId: client._id });
+            if (!docEntry) return res.status(404).json({ error: 'Documents not found' });
+            const pendingDocs = Array.from(docEntry.documents.entries()).filter(([_, status]) => status === 'not-received');
+            // Prepare PDF
+            const doc = new PDFDocument();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="pending_documents_${client.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf"`);
+            doc.pipe(res);
+            doc.fontSize(18).text(`Pending Documents for ${client.name}`, { align: 'center' });
+            doc.moveDown();
+            if (pendingDocs.length === 0) {
+                doc.fontSize(12).text('No pending documents.');
+            } else {
+                pendingDocs.forEach(([docName]) => {
+                    doc.fontSize(12).text(docName);
+                });
+            }
+            doc.end();
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
