@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
     });
 });
 
-// FIXED: Single MongoDB Connection - Remove duplicate connections
+// FIXED: Single MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -49,103 +49,10 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('✅ MongoDB connected successfully'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Schemas
+// Schemas (declared only once)
 const userSchema = new mongoose.Schema({
     userId: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true }
-});
-const User = mongoose.model('User', userSchema);
-
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key';
-
-// Auth Middleware
-function authMiddleware(req, res, next) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const token = authHeader.split(' ')[1];
-    try {
-        const payload = jwt.verify(token, JWT_SECRET);
-        req.user = payload;
-        next();
-    } catch (err) {
-        return res.status(401).json({ error: 'Invalid token' });
-    }
-}
-
-// Register Endpoint
-app.post('/api/register', async (req, res) => {
-    const { userId, password } = req.body;
-    if (!userId || !password) return res.status(400).json({ error: 'User ID and password required' });
-    const existing = await User.findOne({ userId });
-    if (existing) return res.status(400).json({ error: 'User ID already exists' });
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = new User({ userId, passwordHash });
-    await user.save();
-    res.json({ message: 'User registered successfully' });
-});
-
-// Login Endpoint
-app.post('/api/login', async (req, res) => {
-    const { userId, password } = req.body;
-    const user = await User.findOne({ userId });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
-    const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
-    const token = jwt.sign({ userId: user.userId, _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token });
-});
-
-// Schemas
-const userSchema = new mongoose.Schema({
-    userId: { type: String, required: true, unique: true },
-    passwordHash: { type: String, required: true }
-});
-const User = mongoose.model('User', userSchema);
-
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key';
-
-// Auth Middleware
-function authMiddleware(req, res, next) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const token = authHeader.split(' ')[1];
-    try {
-        const payload = jwt.verify(token, JWT_SECRET);
-        req.user = payload;
-        next();
-    } catch (err) {
-        return res.status(401).json({ error: 'Invalid token' });
-    }
-}
-
-
-// Register Endpoint
-app.post('/api/register', async (req, res) => {
-    const { userId, password } = req.body;
-    if (!userId || !password) return res.status(400).json({ error: 'User ID and password required' });
-    const existing = await User.findOne({ userId });
-    if (existing) return res.status(400).json({ error: 'User ID already exists' });
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = new User({ userId, passwordHash });
-    await user.save();
-    res.json({ message: 'User registered successfully' });
-});
-
-// Login Endpoint
-app.post('/api/login', async (req, res) => {
-    const { userId, password } = req.body;
-    const user = await User.findOne({ userId });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
-    const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
-    const token = jwt.sign({ userId: user.userId, _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token });
 });
 
 const clientSchema = new mongoose.Schema({
@@ -169,7 +76,7 @@ const clientSchema = new mongoose.Schema({
         enum: ['Not Started', 'In Progress', 'Completed'],
         required: false
     },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // owner
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     reraNumber: String,
     certificateDate: Date,
     mobile: {
@@ -195,10 +102,10 @@ const documentSchema = new mongoose.Schema({
         ref: 'Client',
         required: true
     },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // owner
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     documents: {
         type: Map,
-        of: String, // 'received' or 'not-received'
+        of: String,
         default: {}
     },
     lastUpdated: {
@@ -213,7 +120,7 @@ const paymentSchema = new mongoose.Schema({
         ref: 'Client',
         required: true
     },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // owner
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     amount: {
         type: Number,
         required: true
@@ -242,12 +149,6 @@ const paymentSchema = new mongoose.Schema({
     }
 });
 
-// Models
-const Client = mongoose.model('Client', clientSchema);
-const Document = mongoose.model('Document', documentSchema);
-const Payment = mongoose.model('Payment', paymentSchema);
-
-// Task model
 const taskSchema = new mongoose.Schema({
     clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -270,7 +171,55 @@ const taskSchema = new mongoose.Schema({
     description: String,
     dateCreated: { type: Date, default: Date.now }
 });
+
+// Models
+const User = mongoose.model('User', userSchema);
+const Client = mongoose.model('Client', clientSchema);
+const Document = mongoose.model('Document', documentSchema);
+const Payment = mongoose.model('Payment', paymentSchema);
 const Task = mongoose.model('Task', taskSchema);
+
+// JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key';
+
+// Auth Middleware
+function authMiddleware(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const payload = jwt.verify(token, JWT_SECRET);
+        req.user = payload;
+        next();
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+}
+
+// Register Endpoint
+app.post('/api/register', async (req, res) => {
+    const { userId, password } = req.body;
+    if (!userId || !password) return res.status(400).json({ error: 'User ID and password required' });
+    const existing = await User.findOne({ userId });
+    if (existing) return res.status(400).json({ error: 'User ID already exists' });
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = new User({ userId, passwordHash });
+    await user.save();
+    res.json({ message: 'User registered successfully' });
+});
+
+// Login Endpoint
+app.post('/api/login', async (req, res) => {
+    const { userId, password } = req.body;
+    const user = await User.findOne({ userId });
+    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
+    const token = jwt.sign({ userId: user.userId, _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token });
+});
 
 // Default documents list
 const defaultDocuments = [
@@ -312,8 +261,6 @@ const defaultDocuments = [
     'Amenities Details',
     'SRO Membership Certificate'
 ];
-
-// Routes
 
 // Client Routes
 app.get('/api/clients', authMiddleware, async (req, res) => {
@@ -473,7 +420,7 @@ app.post('/api/payments', authMiddleware, async (req, res) => {
         if (!paymentData.clientId) {
             return res.status(400).json({ error: 'clientId is required' });
         }
-        paymentData.userId = req.user._id; // Ensure userId is set from the logged-in user
+        paymentData.userId = req.user._id;
         const payment = new Payment(paymentData);
         await payment.save();
         res.json(payment);
@@ -524,7 +471,6 @@ app.delete('/api/payments/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// Add this route to return all payments for the current user
 app.get('/api/payments', authMiddleware, async (req, res) => {
     try {
         const payments = await Payment.find({ userId: req.user._id });
@@ -538,11 +484,9 @@ app.get('/api/payments', authMiddleware, async (req, res) => {
 app.post('/api/tasks', authMiddleware, async (req, res) => {
     try {
         const taskData = req.body;
-        // Ensure clientId is present and valid
         if (!taskData.clientId) {
             return res.status(400).json({ error: 'clientId is required' });
         }
-        // Set userId from the logged-in user
         taskData.userId = req.user._id;
         const task = new Task(taskData);
         await task.save();
@@ -551,6 +495,7 @@ app.post('/api/tasks', authMiddleware, async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
 app.get('/api/tasks/:clientId', authMiddleware, async (req, res) => {
     try {
         const tasks = await Task.find({ clientId: req.params.clientId });
@@ -577,7 +522,6 @@ app.get('/api/search/clients', authMiddleware, async (req, res) => {
     }
 });
 
-// Add this route after your other API routes:
 app.get('/api/user', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('name email');
