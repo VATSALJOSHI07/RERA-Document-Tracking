@@ -552,4 +552,3 @@ app.listen(PORT, () => {
 
 module.exports = app;
 
-//mongodb+srv://vatsaljoshi257:<db_password>@cluster0.vlsb0p1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
