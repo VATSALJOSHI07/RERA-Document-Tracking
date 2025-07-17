@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+
 const allowedOrigins = [
   'https://vatsaljoshi07.github.io'
 ];
@@ -28,6 +29,19 @@ app.use(cors({
 
   
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'RERA Document Tracking API is running!',
+        status: 'success',
+        endpoints: {
+            health: '/api/health',
+            login: '/api/login',
+            register: '/api/register',
+            clients: '/api/clients'
+        }
+    });
+});
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -70,6 +84,7 @@ function authMiddleware(req, res, next) {
         return res.status(401).json({ error: 'Invalid token' });
     }
 }
+
 
 // Register Endpoint
 app.post('/api/register', async (req, res) => {
@@ -551,4 +566,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
