@@ -342,11 +342,10 @@ app.delete('/api/clients/:id', authMiddleware, async (req, res) => {
         if (!client) {
             return res.status(404).json({ error: 'Client not found' });
         }
-        
-        // Delete related documents and payments
+        // Delete related documents, payments, and tasks
         await Document.deleteMany({ clientId: req.params.id });
         await Payment.deleteMany({ clientId: req.params.id });
-        
+        await Task.deleteMany({ clientId: req.params.id });
         res.json({ message: 'Client deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
