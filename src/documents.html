@@ -1306,7 +1306,7 @@
             errorDiv.style.display = 'none';
             clientsList.innerHTML = '';
 
-            fetch(`https://rera-backend.onrender.com/api/search/clients?q=${encodeURIComponent(query)}`)
+            fetch(`https://api//search/clients?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     loadingDiv.style.display = 'none';
@@ -1424,7 +1424,7 @@
                 return;
             }
 
-            fetch(`https://rera-backend.onrender.com/api/search/clients?q=${encodeURIComponent(query)}`)
+            fetch(`https://api//search/clients?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
@@ -1496,7 +1496,7 @@
             addDocumentSection.style.display = 'none';
 
             // First get client info
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(clientData => {
                     if (clientData.error) {
@@ -1509,7 +1509,7 @@
                     addDocumentSection.style.display = 'block';
 
                     // Then get documents
-                    return fetch(`https://rera-backend.onrender.com/api/documents/${clientId}`);
+                    return fetch(`https://api//documents/${clientId}`);
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -1580,7 +1580,7 @@
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
 
-            fetch(`https://rera-backend.onrender.com/api/documents/${currentClientId}`, {
+            fetch(`https://api//documents/${currentClientId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1664,7 +1664,7 @@
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/documents/${currentClientId}/add`, {
+            fetch(`https://api//documents/${currentClientId}/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1708,7 +1708,7 @@
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/documents/${currentClientId}/delete`, {
+            fetch(`https://api//documents/${currentClientId}/delete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1741,7 +1741,7 @@
             if (query.length < 2) {
                 return;
             }
-            fetch(`https://rera-backend.onrender.com/api/search/clients?q=${encodeURIComponent(query)}`)
+            fetch(`https://api//search/clients?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
@@ -1807,7 +1807,7 @@
             successDiv.style.display = 'none';
             paymentsList.innerHTML = '';
             document.getElementById('paymentsList').style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/payments/${clientId}`)
+            fetch(`https://api//payments/${clientId}`)
                 .then(response => response.json())
                 .then(data => {
                     loadingDiv.style.display = 'none';
@@ -1921,7 +1921,7 @@
                 date: document.getElementById('recordDate').value,
                 notes: document.getElementById('recordNotes').value
             };
-            fetch(`https://rera-backend.onrender.com/api/payments/${window.currentPaymentId}/record`, {
+            fetch(`https://api//payments/${window.currentPaymentId}/record`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1968,7 +1968,7 @@
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`, {
+            fetch(`https://api//clients/${clientId}`, {
                 method: 'DELETE',
             })
             .then(response => response.json())
@@ -1994,7 +1994,7 @@
         // Add editClient logic and update form handling
         function editClient(event, clientId) {
             event.stopPropagation();
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(client => {
                     // Switch to Add New Client tab
@@ -2037,7 +2037,7 @@
             const panel = document.getElementById('clientDetailsPanelHome');
             panel.style.display = 'block';
             panel.innerHTML = '<div class="loading">Loading client details...</div>';
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(client => {
                     let html = `<div style="background:#f7fafc; border:2px solid #e2e8f0; border-radius:15px; padding:24px; margin-bottom:20px;">
@@ -2136,7 +2136,7 @@
                 return;
             }
             clientsList.innerHTML = '<div class="loading">Searching...</div>';
-            fetch(`https://rera-backend.onrender.com/api/search/clients?q=${encodeURIComponent(query)}`)
+            fetch(`https://api//search/clients?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     clientsList.innerHTML = '';
@@ -2193,7 +2193,7 @@
 
         // Edit client from Home section
         function editClientHome(clientId) {
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(client => {
                     document.getElementById('addClientModal').style.display = 'block';
@@ -2231,7 +2231,7 @@
             const panel = document.getElementById('clientDetailsPanelHome');
             panel.style.display = 'block';
             panel.innerHTML = '<div class="loading">Loading client details...</div>';
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(client => {
                     let html = `<div style="font-size:1.1em;line-height:1.7;">
@@ -2374,7 +2374,7 @@
             const content = document.getElementById('clientDetailsModalContent');
             modal.style.display = 'block';
             content.innerHTML = '<div class="loading">Loading client details...</div>';
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(client => {
                     let html = `<div style="font-size:1.1em;line-height:1.7;">
@@ -2565,7 +2565,7 @@
             // Show client name
             let html = `<h3>${client.name}</h3>`;
             // Fetch and show payments
-            fetch(`https://rera-backend.onrender.com/api/payments/${client._id}`)
+            fetch(`https://api//payments/${client._id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (!data || data.length === 0) {
@@ -2763,12 +2763,12 @@
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
             documentsList.innerHTML = '';
-            fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+            fetch(`https://api//clients/${clientId}`)
                 .then(response => response.json())
                 .then(clientData => {
                     if (clientData.error) throw new Error(clientData.error);
                     document.getElementById('documentsModalClientName').textContent = clientData.name;
-                    return fetch(`https://rera-backend.onrender.com/api/documents/${clientId}`);
+                    return fetch(`https://api//documents/${clientId}`);
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -2826,7 +2826,7 @@
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/documents/${currentClientId}`, {
+            fetch(`https://api//documents/${currentClientId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ documentName, status })
@@ -2889,7 +2889,7 @@
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/documents/${currentClientId}/add`, {
+            fetch(`https://api//documents/${currentClientId}/add`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ documentName: newDocumentName })
@@ -2922,7 +2922,7 @@
             loadingDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            fetch(`https://rera-backend.onrender.com/api/documents/${currentClientId}/delete`, {
+            fetch(`https://api//documents/${currentClientId}/delete`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ documentName })
@@ -2988,7 +2988,7 @@
         // Add these functions to the <script> section:
         function deletePayment(paymentId, clientId) {
             if (!confirm('Are you sure you want to delete this payment?')) return;
-            fetch(`https://rera-backend.onrender.com/api/payments/${paymentId}`, {
+            fetch(`https://api//payments/${paymentId}`, {
                 method: 'DELETE'
             })
             .then(response => response.json())
@@ -2999,7 +2999,7 @@
                 }
                 alert('Payment deleted!');
                 // Refresh the modal
-                fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+                fetch(`https://api//clients/${clientId}`)
                     .then(response => response.json())
                     .then(client => showPaymentDetailsModal(client));
             })
@@ -3009,14 +3009,14 @@
         }
 
         function editPayment(paymentId, clientId) {
-            fetch(`https://rera-backend.onrender.com/api/payments/${paymentId}`)
+            fetch(`https://api//payments/${paymentId}`)
                 .then(response => response.json())
                 .then(payment => {
                     const newAmount = prompt('Edit Amount:', payment.amount);
                     const newDescription = prompt('Edit Description:', payment.description);
                     const newDueDate = prompt('Edit Due Date (YYYY-MM-DD):', payment.dueDate || '');
                     if (newAmount === null || newDescription === null) return;
-                    fetch(`https://rera-backend.onrender.com/api/payments/${paymentId}`, {
+                    fetch(`https://api//payments/${paymentId}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -3032,7 +3032,7 @@
                             return;
                         }
                         alert('Payment updated!');
-                        fetch(`https://rera-backend.onrender.com/api/clients/${clientId}`)
+                        fetch(`https://api//clients/${clientId}`)
                             .then(response => response.json())
                             .then(client => showPaymentDetailsModal(client));
                     })
@@ -3191,7 +3191,7 @@
             document.getElementById('taskDetailsModal').style.display = 'block';
             const content = document.getElementById('taskDetailsModalContent');
             content.innerHTML = '<div class="loading">Loading tasks...</div>';
-            fetch(`https://rera-backend.onrender.com/api/tasks/${clientId}`)
+            fetch(`https://api//tasks/${clientId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (!data || data.length === 0) {
@@ -3284,7 +3284,7 @@
 
         // After loadClientsHome loads all clients, fetch all payments and update the Home cards
         function updateHomeTotals() {
-            fetch('https://rera-backend.onrender.com/api/payments')
+            fetch('https://api//payments')
                 .then(response => response.json())
                 .then(data => {
                     if (!data || !Array.isArray(data)) return;
