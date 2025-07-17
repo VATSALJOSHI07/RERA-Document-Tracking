@@ -312,17 +312,24 @@ app.get('/api/clients/:id', authMiddleware, async (req, res) => {
 app.put('/api/clients/:id', authMiddleware, async (req, res) => {
     try {
         const updateData = req.body;
-        
+        // Prevent duplicate client name/location for the same user
+        const duplicate = await Client.findOne({
+            _id: { $ne: req.params.id },
+            userId: req.user._id,
+            name: updateData.name,
+            location: updateData.location
+        });
+        if (duplicate) {
+            return res.status(400).json({ error: 'A client with this name and location already exists.' });
+        }
         const client = await Client.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true }
         ).select('-password');
-        
         if (!client) {
             return res.status(404).json({ error: 'Client not found' });
         }
-        
         res.json(client);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -458,10 +465,15 @@ app.put('/api/payments/:id/record', authMiddleware, async (req, res) => {
 
 app.delete('/api/payments/:id', authMiddleware, async (req, res) => {
     try {
-        const payment = await Payment.findByIdAndDelete(req.params.id);
+        const payment = await Payment.findById(req.params.id);
         if (!payment) {
             return res.status(404).json({ error: 'Payment not found' });
         }
+        // Only allow delete if fully received
+        if ((payment.paidAmount || 0) < payment.amount) {
+            return res.status(400).json({ error: 'Cannot delete payment unless it is fully received.' });
+        }
+        await Payment.findByIdAndDelete(req.params.id);
         res.json({ message: 'Payment deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
