@@ -840,7 +840,7 @@
                 <h2>Document Tracking</h2>
                 <div class="home-search-row">
                     <input type="text" id="documentSearch" placeholder="Search clients to view documents..." style="flex:1;">
-                    <button class="btn btn-success" id="downloadPendingDocsBtn" style="margin-left:16px;">Download Pending Documents (Excel)</button>
+                    <button class="btn btn-success" id="downloadPendingDocsBtn" style="margin-left:16px;">Download Pending Documents (PDF)</button>
                 </div>
                 <div id="documentsClientList" class="client-list"></div>
             </section>
@@ -2899,7 +2899,39 @@
                     e.stopPropagation();
                     showDocumentsForClient(client);
                 };
+                // Download PDF button
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'client-list-action-btn';
+                downloadBtn.title = 'Download Pending Documents (PDF)';
+                downloadBtn.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38a169" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>`;
+                downloadBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    fetch(`/api/export/pending-documents/${client._id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + (localStorage.getItem('jwt') || '')
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to download file');
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `pending_documents_${client.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(err => {
+                        alert('Failed to download pending documents: ' + err.message);
+                    });
+                };
                 actionsDiv.appendChild(viewBtn);
+                actionsDiv.appendChild(downloadBtn);
                 item.appendChild(nameDiv);
                 item.appendChild(actionsDiv);
                 clientsList.appendChild(item);
@@ -3656,7 +3688,7 @@
             updateHomeTotals();
         };
 
-        // Download Pending Documents Excel
+        // Download Pending Documents PDF (all clients)
         document.getElementById('downloadPendingDocsBtn').addEventListener('click', function() {
             fetch('/api/export/pending-documents', {
                 method: 'GET',
@@ -3672,7 +3704,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'pending_documents.xlsx';
+                a.download = 'pending_documents.pdf';
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
