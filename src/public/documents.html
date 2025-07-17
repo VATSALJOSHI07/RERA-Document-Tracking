@@ -757,9 +757,134 @@
         #tasksSection h2 {
             margin-bottom: 32px;
         }
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 24px 8px 24px 8px;
+            }
+            .home-cards {
+                flex-direction: column;
+            }
+        }
+        @media (max-width: 900px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px 4px 16px 4px;
+            }
+            .sidebar {
+                width: 200px;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                width: 220px;
+                height: 100vh;
+                z-index: 2000;
+                transition: left 0.3s;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 12px 2vw;
+            }
+            .app-container {
+                flex-direction: column;
+            }
+            .home-cards {
+                flex-direction: column;
+            }
+            .documents-grid, .client-list {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                min-width: unset !important;
+                max-width: 98vw !important;
+                width: 98vw !important;
+                padding: 12px;
+            }
+            #documentsModalTable th, #documentsModalTable td {
+                padding: 8px 6px !important;
+                font-size: 0.98em;
+            }
+        }
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 170px;
+            }
+            .sidebar .logo {
+                font-size: 1.1em;
+                padding: 18px 0 12px 18px;
+            }
+            .sidebar-nav a {
+                font-size: 0.98em;
+                padding: 10px 18px;
+            }
+            .sidebar-bottom {
+                padding: 12px 18px;
+            }
+            .modal-content {
+                padding: 8px;
+            }
+            .form-group label, .form-group input, .form-group select, .form-group textarea {
+                font-size: 0.98em;
+            }
+            .btn, .add-client-btn {
+                font-size: 0.98em;
+                padding: 10px 18px;
+            }
+        }
+        @media (max-width: 400px) {
+            .sidebar {
+                width: 120px;
+            }
+            .sidebar .logo {
+                font-size: 0.9em;
+                padding: 10px 0 8px 10px;
+            }
+            .main-content {
+                padding: 4px 1vw;
+            }
+        }
+        /* Hamburger menu for mobile */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            z-index: 3000;
+            width: 36px;
+            height: 36px;
+            background: #22314a;
+            border-radius: 8px;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 3px;
+            background: #fff;
+            margin: 4px 0;
+            border-radius: 2px;
+        }
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="hamburger" id="hamburgerMenu" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
     <!-- Login/Register Modal -->
     <div id="authModal" class="modal" style="display:none;">
         <div class="modal-content">
@@ -3713,6 +3838,26 @@
             .catch(err => {
                 alert('Failed to download pending documents: ' + err.message);
             });
+        });
+
+        // Hamburger menu logic for mobile sidebar
+        function toggleSidebar() {
+            var sidebar = document.querySelector('.sidebar');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            } else {
+                sidebar.classList.add('open');
+            }
+        }
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            var sidebar = document.querySelector('.sidebar');
+            var hamburger = document.getElementById('hamburgerMenu');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
         });
     </script>
 </body>
