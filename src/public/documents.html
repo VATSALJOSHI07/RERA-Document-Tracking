@@ -1395,33 +1395,66 @@
                 reference: document.getElementById('reference').value,
                 completionDate: document.getElementById('completionDate').value
             };
-            fetch('/api/clients', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(clientData)
-            })
-            .then(response => {
-                if (response.status === 401) {
-                    showAuthModal();
-                    throw new Error('Unauthorized');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                    return;
-                }
-                alert('Client saved successfully!');
-                document.getElementById('addClientModal').style.display = 'none';
-                document.getElementById('addNewClientForm').reset();
-                loadClientsHome();
-            })
-            .catch(error => {
-                alert('Failed to save client. Please try again.');
-            });
+            if (editingClientId) {
+                // Edit mode: update existing client
+                fetch(`/api/clients/${editingClientId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(clientData)
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    alert('Client updated successfully!');
+                    document.getElementById('addClientModal').style.display = 'none';
+                    document.getElementById('addNewClientForm').reset();
+                    editingClientId = null;
+                    loadClientsHome();
+                })
+                .catch(error => {
+                    alert('Failed to update client. Please try again.');
+                });
+            } else {
+                // Create mode: add new client
+                fetch('/api/clients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(clientData)
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    alert('Client saved successfully!');
+                    document.getElementById('addClientModal').style.display = 'none';
+                    document.getElementById('addNewClientForm').reset();
+                    loadClientsHome();
+                })
+                .catch(error => {
+                    alert('Failed to save client. Please try again.');
+                });
+            }
         }
 
         function resetClientForm() {
@@ -1920,6 +1953,7 @@
                             <div>Date: ${payment.dueDate ? payment.dueDate : 'N/A'}</div>
                             <div>Transactions: ${payment.transactions && payment.transactions.length > 0 ? payment.transactions.map(t => `<div>₹${t.amount} on ${t.date ? new Date(t.date).toLocaleDateString() : ''} (${t.notes || ''})</div>`).join('') : 'None'}</div>
                             <button class="btn btn-success record-payment-btn-modal" onclick="showRecordPaymentModal('${payment._id}', ${remaining})" ${status==='Received'?'disabled':''}>Record Payment</button>
+                            <div style="margin-top:10px;">${actionButtons}</div>
                         `;
                         paymentsList.appendChild(paymentItem);
                     });
@@ -2726,9 +2760,13 @@
                             if ((payment.paidAmount || 0) >= payment.amount) status = 'Received';
                             else if ((payment.paidAmount || 0) > 0) status = 'Partial';
                             const remaining = Math.max(0, payment.amount - (payment.paidAmount || 0));
-                            let actionButtons = `<button class="btn btn-danger" onclick="deletePayment('${payment._id}', '${client._id}')">Delete</button>`;
+                            let actionButtons = '';
+                            // Only show delete button if payment is fully received
                             if ((payment.paidAmount || 0) >= payment.amount) {
-                                actionButtons += ` <button class="btn btn-secondary" onclick="editPayment('${payment._id}', '${client._id}')">Edit</button>`;
+                                actionButtons += `<button class="btn btn-danger" onclick="deletePayment('${payment._id}', '${payment.clientId || currentClientId}')">Delete</button>`;
+                            }
+                            if ((payment.paidAmount || 0) >= payment.amount) {
+                                actionButtons += ` <button class="btn btn-secondary" onclick="editPayment('${payment._id}', '${payment.clientId || currentClientId}')">Edit</button>`;
                             }
                             html += `<div class="payment-item" style="margin-bottom:12px;">
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
