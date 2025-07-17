@@ -840,6 +840,7 @@
                 <h2>Document Tracking</h2>
                 <div class="home-search-row">
                     <input type="text" id="documentSearch" placeholder="Search clients to view documents..." style="flex:1;">
+                    <button class="btn btn-success" id="downloadPendingDocsBtn" style="margin-left:16px;">Download Pending Documents (Excel)</button>
                 </div>
                 <div id="documentsClientList" class="client-list"></div>
             </section>
@@ -3654,6 +3655,33 @@
             origLoadClientsHome();
             updateHomeTotals();
         };
+
+        // Download Pending Documents Excel
+        document.getElementById('downloadPendingDocsBtn').addEventListener('click', function() {
+            fetch('/api/export/pending-documents', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + (localStorage.getItem('jwt') || '')
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to download file');
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pending_documents.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(err => {
+                alert('Failed to download pending documents: ' + err.message);
+            });
+        });
     </script>
 </body>
 </html>
