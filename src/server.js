@@ -515,6 +515,19 @@ app.get('/api/tasks/:clientId', authMiddleware, async (req, res) => {
     }
 });
 
+// Add this endpoint to allow deleting a task by its ID
+app.delete('/api/tasks/:id', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findByIdAndDelete(req.params.id);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        res.json({ message: 'Task deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Search Routes
 app.get('/api/search/clients', authMiddleware, async (req, res) => {
     try {
