@@ -2671,6 +2671,8 @@
             if (mainApp) mainApp.style.display = 'none';
             var logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.style.display = 'none';
+            var hamburger = document.getElementById('hamburgerMenu');
+            if (hamburger) hamburger.style.display = 'none';
         }
         function hideAuthModal() {
             var authModal = document.getElementById('authModal');
@@ -2679,6 +2681,8 @@
             if (mainApp) mainApp.style.display = 'block';
             var logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.style.display = 'block';
+            var hamburger = document.getElementById('hamburgerMenu');
+            if (hamburger) hamburger.style.display = 'flex';
         }
         function login(e) {
             e.preventDefault();
