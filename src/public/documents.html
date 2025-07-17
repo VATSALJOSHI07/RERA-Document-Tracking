@@ -1063,7 +1063,7 @@
                         <input type="number" id="bookedUnits">
                     </div>
                     <div class="form-group">
-                        <label for="workStatus">Work Status</label>
+                        <label for="workStatus">Work Status<span class="required">*</label>
                         <select id="workStatus">
                             <option value="">Select Status</option>
                             <option value="Not Started">Not Started</option>
@@ -3492,7 +3492,8 @@
                     }
                     let html = `<h4>Tasks for ${clientName}</h4>`;
                     data.forEach(task => {
-                        html += `<div style='background:#f7fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;'>
+                        const isCompleted = task.status === 'Completed';
+                        html += `<div id="task-card-${task._id}" style='background:${isCompleted ? '#c6f6d5' : '#f7fafc'};border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;'>
                             <b>Title:</b> ${task.title || ''}<br>
                             <b>Description:</b> ${task.description || ''}<br>
                             <b>Service:</b> ${task.service || ''}<br>
@@ -3502,7 +3503,7 @@
                             <b>Date:</b> ${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}<br>
                             <b>Team:</b> ${task.team || ''}<br>
                             <b>Client Source:</b> ${task.clientSource || ''}<br>
-                            <b>Status:</b> ${task.status || ''}<br>
+                            <b>Status:</b> <span id="task-status-${task._id}">${task.status || ''}</span><br>
                             <b>Government Fees:</b> ${task.governmentFees || ''}<br>
                             <b>SRO Fees:</b> ${task.sroFees || ''}<br>
                             <b>Bill Amount:</b> ${task.billAmount || ''}<br>
@@ -3510,6 +3511,8 @@
                             <b>Branch:</b> ${task.branch || ''}<br>
                             <b>Remark:</b> ${task.remark || ''}<br>
                             <b>Note:</b> ${task.note || ''}<br>
+                            <button class="btn btn-success" style="margin-top:10px;${isCompleted ? 'background:#38a169;' : ''}" onclick="toggleTaskCompleted('${task._id}', '${task.status}', '${clientId}', '${clientName}')">${isCompleted ? 'Completed ✓' : 'Mark as Completed'}</button>
+                            ${isCompleted ? `<button class='btn btn-danger' style='margin-left:10px;margin-top:10px;' onclick="deleteTask('${task._id}', '${clientId}', '${clientName}')">Delete</button>` : ''}
                         </div>`;
                     });
                     content.innerHTML = html;
@@ -3517,6 +3520,45 @@
                 .catch(() => {
                     content.innerHTML = '<div class="error">Failed to load tasks.</div>';
                 });
+        }
+
+        function toggleTaskCompleted(taskId, currentStatus, clientId, clientName) {
+            // Toggle between 'Completed' and previous status (default to 'Pending' if not set)
+            const newStatus = currentStatus === 'Completed' ? 'Pending' : 'Completed';
+            fetch(`/api/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                showTaskDetailsModal(clientId, clientName);
+            })
+            .catch(() => {
+                alert('Failed to update task status.');
+            });
+        }
+
+        function deleteTask(taskId, clientId, clientName) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            fetch(`/api/tasks/${taskId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                showTaskDetailsModal(clientId, clientName);
+            })
+            .catch(() => {
+                alert('Failed to delete task.');
+            });
         }
         function closeTaskDetailsModal() {
             document.getElementById('taskDetailsModal').style.display = 'none';
