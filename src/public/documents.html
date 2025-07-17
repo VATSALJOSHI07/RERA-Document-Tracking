@@ -1245,7 +1245,7 @@
             errorDiv.style.display = 'none';
             clientsList.innerHTML = '';
 
-            fetch('https://Reradoc.onrender.com/api/clients')
+            fetch('/api/clients')
                 .then(response => response.json())
                 .then(data => {
                     loadingDiv.style.display = 'none';
@@ -1383,7 +1383,7 @@
                 reference: document.getElementById('reference').value,
                 completionDate: document.getElementById('completionDate').value
             };
-            fetch('https://Reradoc.onrender.com/api/clients', {
+            fetch('/api/clients', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1874,7 +1874,7 @@
                 description: document.getElementById('paymentDescription').value,
                 dueDate: document.getElementById('paymentDueDate').value
             };
-            fetch('https://Reradoc.onrender.com/api/payments', {
+            fetch('/api/payments', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2075,7 +2075,7 @@
         function loadClientsHome() {
             const clientsList = document.getElementById('clientListHome');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
-            fetch('https://Reradoc.onrender.com/api/clients')
+            fetch('/api/clients')
                 .then(response => response.json())
                 .then(data => {
                     clientsList.innerHTML = '';
@@ -2296,7 +2296,7 @@
             e.preventDefault();
             const userId = document.getElementById('authUserId').value.trim();
             const password = document.getElementById('authPassword').value;
-            fetch('https://Reradoc.onrender.com/api/login', {
+            fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId, password })
@@ -2321,7 +2321,7 @@
             e.preventDefault();
             const userId = document.getElementById('authUserId').value.trim();
             const password = document.getElementById('authPassword').value;
-            fetch('https://Reradoc.onrender.com/api/register', {
+            fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId, password })
@@ -2480,7 +2480,7 @@
         function loadClientsForPayments() {
             const clientsList = document.getElementById('paymentsClientList');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
-            fetch('https://Reradoc.onrender.com/api/clients')
+            fetch('/api/clients')
                 .then(response => response.json())
                 .then(data => {
                     allPaymentClients = data || [];
@@ -2641,7 +2641,7 @@
         function loadClientsForDocuments() {
             const clientsList = document.getElementById('documentsClientList');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
-            fetch('https://Reradoc.onrender.com/api/clients')
+            fetch('/api/clients')
                 .then(response => response.json())
                 .then(data => {
                     allDocumentClients = data || [];
@@ -3044,7 +3044,7 @@
 
         // After successful authentication (when isAuthenticated() is true), fetch the current user's info from the backend and update the sidebar.
         if (isAuthenticated()) {
-            fetch('https://Reradoc.onrender.com/api/user')
+            fetch('/api/user')
                 .then(res => res.json())
                 .then(user => {
                     if (user && user.name) {
@@ -3067,7 +3067,7 @@
         function loadClientsForTasks() {
             const clientsList = document.getElementById('taskClientList');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
-            fetch('https://Reradoc.onrender.com/api/clients')
+            fetch('/api/clients')
                 .then(response => response.json())
                 .then(data => {
                     allTaskClients = data || [];
@@ -3167,7 +3167,7 @@
                 note: document.getElementById('taskNote').value,
                 description: document.getElementById('taskDescription').value
             };
-            fetch('https://Reradoc.onrender.com/api/tasks', {
+            fetch('/api/tasks', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(taskData)
