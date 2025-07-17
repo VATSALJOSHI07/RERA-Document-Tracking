@@ -6,6 +6,7 @@
     const jwt = require('jsonwebtoken');
     require('dotenv').config();
     const path = require('path');
+    const ExcelJS = require('exceljs');
 
     const app = express();
     const PORT = process.env.PORT || 5000;
@@ -563,6 +564,50 @@
     app.get('/api/user', authMiddleware, async (req, res) => {
         // You may want to return more user info if you store it
         res.json({ userId: req.user.userId, _id: req.user._id });
+    });
+
+    // Endpoint to export pending documents for all clients in Excel format
+    app.get('/api/export/pending-documents', authMiddleware, async (req, res) => {
+        try {
+            // Get all clients for the user
+            const clients = await Client.find({ userId: req.user._id });
+            // Get all documents for these clients
+            const clientIds = clients.map(c => c._id);
+            const documentsList = await Document.find({ clientId: { $in: clientIds } });
+
+            // Prepare Excel workbook
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Pending Documents');
+            worksheet.columns = [
+                { header: 'Client Name', key: 'clientName', width: 30 },
+                { header: 'Location', key: 'location', width: 20 },
+                { header: 'Pending Document', key: 'document', width: 40 },
+            ];
+
+            // For each client, list all documents with status 'not-received'
+            for (const client of clients) {
+                const docEntry = documentsList.find(d => d.clientId.toString() === client._id.toString());
+                if (docEntry && docEntry.documents) {
+                    for (const [docName, status] of docEntry.documents.entries()) {
+                        if (status === 'not-received') {
+                            worksheet.addRow({
+                                clientName: client.name,
+                                location: client.location || '',
+                                document: docName
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Set response headers
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename="pending_documents.xlsx"');
+            await workbook.xlsx.write(res);
+            res.end();
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
     });
 
     // Health check route
