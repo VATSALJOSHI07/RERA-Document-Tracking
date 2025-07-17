@@ -12,9 +12,9 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 
-const allowedOrigins = [
-  'https://vatsaljoshi07.github.io'
-];
+// const allowedOrigins = [
+//   'https://vatsaljoshi07.github.io'
+// ];
 
 app.use(cors({
   origin: function (origin, callback) {
