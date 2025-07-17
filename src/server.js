@@ -10,7 +10,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-
 const allowedOrigins = [
   'https://vatsaljoshi07.github.io'
 ];
@@ -27,7 +26,6 @@ app.use(cors({
   credentials: true
 }));
 
-  
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -43,21 +41,62 @@ app.get('/', (req, res) => {
     });
 });
 
+// FIXED: Single MongoDB Connection - Remove duplicate connections
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  })
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB error:', err));
-  
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/developer_management', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
+
+// Schemas
+const userSchema = new mongoose.Schema({
+    userId: { type: String, required: true, unique: true },
+    passwordHash: { type: String, required: true }
+});
+const User = mongoose.model('User', userSchema);
+
+// JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key';
+
+// Auth Middleware
+function authMiddleware(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const payload = jwt.verify(token, JWT_SECRET);
+        req.user = payload;
+        next();
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+}
+
+// Register Endpoint
+app.post('/api/register', async (req, res) => {
+    const { userId, password } = req.body;
+    if (!userId || !password) return res.status(400).json({ error: 'User ID and password required' });
+    const existing = await User.findOne({ userId });
+    if (existing) return res.status(400).json({ error: 'User ID already exists' });
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = new User({ userId, passwordHash });
+    await user.save();
+    res.json({ message: 'User registered successfully' });
+});
+
+// Login Endpoint
+app.post('/api/login', async (req, res) => {
+    const { userId, password } = req.body;
+    const user = await User.findOne({ userId });
+    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
+    const token = jwt.sign({ userId: user.userId, _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token });
+});
 
 // Schemas
 const userSchema = new mongoose.Schema({
