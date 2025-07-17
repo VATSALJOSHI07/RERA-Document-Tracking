@@ -15,7 +15,7 @@
     "express",
     "api"
   ],
-  "author": "Your Name",
+  "author": "Vatsal Joshi",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
