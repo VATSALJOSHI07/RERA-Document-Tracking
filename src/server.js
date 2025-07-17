@@ -10,8 +10,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-const cors = require('cors');
-
 const allowedOrigins = [
   'https://vatsaljoshi07.github.io'
 ];
