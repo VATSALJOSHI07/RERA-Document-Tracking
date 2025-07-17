@@ -12,20 +12,22 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 
-// const allowedOrigins = [
-//   'https://vatsaljoshi07.github.io'
-// ];
+const allowedOrigins = [
+  'https://vatsaljoshi07.github.io', // your GitHub Pages domain
+  'https://your-render-frontend-url.onrender.com', // if you have a Render frontend
+  undefined // allow Postman, curl, etc.
+];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
   
@@ -521,9 +523,9 @@ app.get('/api/search/clients', authMiddleware, async (req, res) => {
 // Add this route after your other API routes:
 app.get('/api/user', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('name email');
+        const user = await User.findById(req.user._id).select('userId');
         if (!user) return res.status(404).json({ error: 'User not found' });
-        res.json({ name: user.name, email: user.email });
+        res.json({ userId: user.userId });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
