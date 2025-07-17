@@ -1246,7 +1246,13 @@
             clientsList.innerHTML = '';
 
             fetch('/api/clients')
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     loadingDiv.style.display = 'none';
                     if (data.error) {
@@ -1255,8 +1261,8 @@
                         return;
                     }
 
-                    if (data.length === 0) {
-                        clientsList.innerHTML = '<p>No clients found. Add a new client using the form below.</p>';
+                    if (!Array.isArray(data)) {
+                        // Show error message
                         return;
                     }
 
@@ -1307,7 +1313,13 @@
             clientsList.innerHTML = '';
 
             fetch(`/api/search/clients?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     loadingDiv.style.display = 'none';
                     if (data.error) {
@@ -1390,7 +1402,13 @@
                 },
                 body: JSON.stringify(clientData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
@@ -1425,7 +1443,13 @@
             }
 
             fetch(`/api/search/clients?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.error) {
                         document.getElementById('documentsError').textContent = data.error;
@@ -1497,7 +1521,13 @@
 
             // First get client info
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(clientData => {
                     if (clientData.error) {
                         throw new Error(clientData.error);
@@ -1511,7 +1541,13 @@
                     // Then get documents
                     return fetch(`/api/documents/${clientId}`);
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     loadingDiv.style.display = 'none';
                     if (data.error) {
@@ -1587,7 +1623,13 @@
                 },
                 body: JSON.stringify({ documentName, status })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -1671,7 +1713,13 @@
                 },
                 body: JSON.stringify({ documentName: newDocumentName })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -1715,7 +1763,13 @@
                 },
                 body: JSON.stringify({ documentName })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -1742,7 +1796,13 @@
                 return;
             }
             fetch(`/api/search/clients?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.error) {
                         document.getElementById('paymentsError').textContent = data.error;
@@ -1808,7 +1868,13 @@
             paymentsList.innerHTML = '';
             document.getElementById('paymentsList').style.display = 'none';
             fetch(`/api/payments/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     loadingDiv.style.display = 'none';
                     if (data.error) {
@@ -1881,7 +1947,13 @@
                 },
                 body: JSON.stringify(paymentData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
@@ -1928,7 +2000,13 @@
                 },
                 body: JSON.stringify(paymentData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
@@ -1971,7 +2049,13 @@
             fetch(`/api/clients/${clientId}`, {
                 method: 'DELETE',
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -1995,7 +2079,13 @@
         function editClient(event, clientId) {
             event.stopPropagation();
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(client => {
                     // Switch to Add New Client tab
                     showSection('addClient');
@@ -2038,7 +2128,13 @@
             panel.style.display = 'block';
             panel.innerHTML = '<div class="loading">Loading client details...</div>';
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(client => {
                     let html = `<div style="background:#f7fafc; border:2px solid #e2e8f0; border-radius:15px; padding:24px; margin-bottom:20px;">
                 <h3 style="margin-bottom:10px;">${client.name}</h3>
@@ -2076,7 +2172,13 @@
             const clientsList = document.getElementById('clientListHome');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
             fetch('/api/clients')
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     clientsList.innerHTML = '';
                     if (!data || data.length === 0) {
@@ -2137,7 +2239,13 @@
             }
             clientsList.innerHTML = '<div class="loading">Searching...</div>';
             fetch(`/api/search/clients?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     clientsList.innerHTML = '';
                     if (!data || data.length === 0) {
@@ -2194,7 +2302,13 @@
         // Edit client from Home section
         function editClientHome(clientId) {
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(client => {
                     document.getElementById('addClientModal').style.display = 'block';
                     document.getElementById('clientType').value = client.type || '';
@@ -2232,7 +2346,13 @@
             panel.style.display = 'block';
             panel.innerHTML = '<div class="loading">Loading client details...</div>';
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(client => {
                     let html = `<div style="font-size:1.1em;line-height:1.7;">
                         <b>Name:</b> ${client.name || 'N/A'}<br>
@@ -2375,7 +2495,13 @@
             modal.style.display = 'block';
             content.innerHTML = '<div class="loading">Loading client details...</div>';
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(client => {
                     let html = `<div style="font-size:1.1em;line-height:1.7;">
                         <b>Name:</b> ${client.name || 'N/A'}<br>
@@ -2481,7 +2607,13 @@
             const clientsList = document.getElementById('paymentsClientList');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
             fetch('/api/clients')
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     allPaymentClients = data || [];
                     renderPaymentsClientList(allPaymentClients);
@@ -2566,7 +2698,13 @@
             let html = `<h3>${client.name}</h3>`;
             // Fetch and show payments
             fetch(`/api/payments/${client._id}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (!data || data.length === 0) {
                         html += '<p>No payments found. Add a new payment below.</p>';
@@ -2642,7 +2780,13 @@
             const clientsList = document.getElementById('documentsClientList');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
             fetch('/api/clients')
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     allDocumentClients = data || [];
                     renderDocumentsClientList(allDocumentClients);
@@ -2764,13 +2908,25 @@
             successDiv.style.display = 'none';
             documentsList.innerHTML = '';
             fetch(`/api/clients/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(clientData => {
                     if (clientData.error) throw new Error(clientData.error);
                     document.getElementById('documentsModalClientName').textContent = clientData.name;
                     return fetch(`/api/documents/${clientId}`);
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     loadingDiv.style.display = 'none';
                     if (data.error) throw new Error(data.error);
@@ -2831,7 +2987,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ documentName, status })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -2894,7 +3056,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ documentName: newDocumentName })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -2927,7 +3095,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ documentName })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = 'none';
                 if (data.error) {
@@ -2991,7 +3165,13 @@
             fetch(`/api/payments/${paymentId}`, {
                 method: 'DELETE'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
@@ -3000,7 +3180,13 @@
                 alert('Payment deleted!');
                 // Refresh the modal
                 fetch(`/api/clients/${clientId}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 401) {
+                            showAuthModal();
+                            throw new Error('Unauthorized');
+                        }
+                        return response.json();
+                    })
                     .then(client => showPaymentDetailsModal(client));
             })
             .catch(() => {
@@ -3010,7 +3196,13 @@
 
         function editPayment(paymentId, clientId) {
             fetch(`/api/payments/${paymentId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(payment => {
                     const newAmount = prompt('Edit Amount:', payment.amount);
                     const newDescription = prompt('Edit Description:', payment.description);
@@ -3025,7 +3217,13 @@
                             dueDate: newDueDate
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 401) {
+                            showAuthModal();
+                            throw new Error('Unauthorized');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.error) {
                             alert('Error: ' + data.error);
@@ -3033,7 +3231,13 @@
                         }
                         alert('Payment updated!');
                         fetch(`/api/clients/${clientId}`)
-                            .then(response => response.json())
+                            .then(response => {
+                                if (response.status === 401) {
+                                    showAuthModal();
+                                    throw new Error('Unauthorized');
+                                }
+                                return response.json();
+                            })
                             .then(client => showPaymentDetailsModal(client));
                     })
                     .catch(() => {
@@ -3068,7 +3272,13 @@
             const clientsList = document.getElementById('taskClientList');
             clientsList.innerHTML = '<div class="loading">Loading clients...</div>';
             fetch('/api/clients')
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     allTaskClients = data || [];
                     renderTaskClientList(allTaskClients);
@@ -3172,7 +3382,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(taskData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthModal();
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.error) {
                     alert('Error: ' + data.error);
@@ -3192,7 +3408,13 @@
             const content = document.getElementById('taskDetailsModalContent');
             content.innerHTML = '<div class="loading">Loading tasks...</div>';
             fetch(`/api/tasks/${clientId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (!data || data.length === 0) {
                         content.innerHTML = `<p>No tasks assigned to ${clientName}.</p>`;
@@ -3266,7 +3488,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(paymentData)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.error) {
                         alert('Error: ' + data.error);
@@ -3285,7 +3513,13 @@
         // After loadClientsHome loads all clients, fetch all payments and update the Home cards
         function updateHomeTotals() {
             fetch('/api/payments')
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 401) {
+                        showAuthModal();
+                        throw new Error('Unauthorized');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (!data || !Array.isArray(data)) return;
                     let cumulativeTotal = 0;
