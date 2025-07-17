@@ -2,7 +2,6 @@
     const express = require('express');
     const mongoose = require('mongoose');
     const cors = require('cors');
-    const bcrypt = require('bcryptjs');
     const jwt = require('jsonwebtoken');
     require('dotenv').config();
     const path = require('path');
@@ -76,8 +75,8 @@
         if (!userId || !password) return res.status(400).json({ error: 'User ID and password required' });
         const existing = await User.findOne({ userId });
         if (existing) return res.status(400).json({ error: 'User ID already exists' });
-        const passwordHash = await bcrypt.hash(password, 10);
-        const user = new User({ userId, passwordHash });
+        // Store password as plain text
+        const user = new User({ userId, passwordHash: password });
         await user.save();
         res.json({ message: 'User registered successfully' });
     });
@@ -87,7 +86,8 @@
         const { userId, password } = req.body;
         const user = await User.findOne({ userId });
         if (!user) return res.status(400).json({ error: 'Invalid credentials' });
-        const valid = await bcrypt.compare(password, user.passwordHash);
+        // Compare plain text password
+        const valid = user.passwordHash === password;
         if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
         const token = jwt.sign({ userId: user.userId, _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
         res.json({ token });
